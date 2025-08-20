@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'screens/gemini_chat_screen.dart';
 
-void main() {
+Future<void> main() async {
+  // Cargar variables de entorno
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -175,6 +179,20 @@ class _BallPhysicsScreenState extends State<BallPhysicsScreen>
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const GeminiChatScreen(),
+                ),
+              );
+            },
+            heroTag: "gemini",
+            backgroundColor: Colors.purple,
+            child: const Icon(Icons.smart_toy, color: Colors.white),
+          ),
+          const SizedBox(height: 16),
           FloatingActionButton(
             onPressed: _resetBall,
             heroTag: "reset",
