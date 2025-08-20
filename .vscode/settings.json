@@ -1,0 +1,30 @@
+{
+  "dart.previewFlutterUiGuides": true,
+  "dart.previewFlutterUiGuidesCustomTracking": true,
+  "dart.flutterWidgetGuides": true,
+  "dart.showTodos": true,
+  "dart.debugSdkLibraries": false,
+  "dart.debugExternalPackageLibraries": false,
+  "dart.previewHotReloadOnSave": true,
+  "dart.previewFlutterStructuredErrors": true,
+  "dart.flutterCreateAndroidLanguage": "kotlin",
+  "dart.flutterCreateIOSLanguage": "swift",
+  "dart.analysisServerFolding": true,
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.rulers": [80],
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off"
+  },
+  "files.associations": {
+    "*.dart": "dart"
+  },
+  "editor.suggest.preview": true,
+  "workbench.colorCustomizations": {
+    "dart.closingLabels": "#ccc"
+  }
+}
