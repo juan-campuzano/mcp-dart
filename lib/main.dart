@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 void main() {
   runApp(const MyApp());
@@ -7,116 +8,277 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Hola a todos',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const BallPhysicsScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class BallPhysicsScreen extends StatefulWidget {
+  const BallPhysicsScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<BallPhysicsScreen> createState() => _BallPhysicsScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _BallPhysicsScreenState extends State<BallPhysicsScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _animationController;
 
-  void _incrementCounter() {
+  // Propiedades de la pelota
+  double ballX = 200.0;
+  double ballY = 200.0;
+  double velocityX = 3.0;
+  double velocityY = 2.0;
+  final double ballRadius = 20.0;
+
+  // Propiedades del círculo contenedor
+  final double containerRadius = 150.0;
+  double centerX = 200.0; // Valor inicial por defecto
+  double centerY = 200.0; // Valor inicial por defecto
+
+  // Físicas
+  final double gravity = 0.2;
+  final double friction = 0.98;
+  final double restitution = 0.8; // Coeficiente de rebote
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat();
+
+    _animationController.addListener(_updateBallPosition);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _updateBallPosition() {
+    // Solo actualizar si tenemos las dimensiones de la pantalla
+    if (centerX == 200.0 && centerY == 200.0) return;
+
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      // Aplicar gravedad
+      velocityY += gravity;
+
+      // Actualizar posición
+      ballX += velocityX;
+      ballY += velocityY;
+
+      // Calcular distancia desde el centro del círculo contenedor
+      double dx = ballX - centerX;
+      double dy = ballY - centerY;
+      double distance = math.sqrt(dx * dx + dy * dy);
+
+      // Verificar colisión con el círculo contenedor
+      if (distance + ballRadius >= containerRadius) {
+        // Calcular el ángulo de colisión
+        double angle = math.atan2(dy, dx);
+
+        // Posicionar la pelota justo dentro del círculo
+        ballX = centerX + (containerRadius - ballRadius) * math.cos(angle);
+        ballY = centerY + (containerRadius - ballRadius) * math.sin(angle);
+
+        // Calcular la velocidad normal y tangencial
+        double normalX = math.cos(angle);
+        double normalY = math.sin(angle);
+
+        // Velocidad normal (componente hacia el centro)
+        double normalVelocity = velocityX * normalX + velocityY * normalY;
+
+        // Reflejar la velocidad normal
+        velocityX -= 2 * normalVelocity * normalX * restitution;
+        velocityY -= 2 * normalVelocity * normalY * restitution;
+
+        // Aplicar fricción
+        velocityX *= friction;
+        velocityY *= friction;
+      }
+    });
+  }
+
+  void _resetBall() {
+    // Solo resetear si tenemos las dimensiones de la pantalla
+    if (centerX == 200.0 && centerY == 200.0) return;
+
+    setState(() {
+      ballX = centerX;
+      ballY = centerY - 50;
+      velocityX = (math.Random().nextDouble() - 0.5) * 6;
+      velocityY = math.Random().nextDouble() * 2;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Hola a todos'),
+        elevation: 0,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Calcular el centro de la pantalla
+          final newCenterX = constraints.maxWidth / 2;
+          final newCenterY = constraints.maxHeight / 2;
+
+          // Inicializar la posición de la pelota la primera vez
+          if (centerX == 200.0 && centerY == 200.0) {
+            centerX = newCenterX;
+            centerY = newCenterY;
+            ballX = centerX;
+            ballY = centerY - 50;
+          } else {
+            centerX = newCenterX;
+            centerY = newCenterY;
+          }
+
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF1e3c72), Color(0xFF2a5298)],
+              ),
             ),
-          ],
-        ),
+            child: CustomPaint(
+              painter: BallPhysicsPainter(
+                ballX: ballX,
+                ballY: ballY,
+                ballRadius: ballRadius,
+                centerX: centerX,
+                centerY: centerY,
+                containerRadius: containerRadius,
+              ),
+              size: Size(constraints.maxWidth, constraints.maxHeight),
+            ),
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: _resetBall,
+            heroTag: "reset",
+            child: const Icon(Icons.refresh),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                velocityX += (math.Random().nextDouble() - 0.5) * 12;
+                velocityY -= math.Random().nextDouble() * 10;
+              });
+            },
+            heroTag: "impulse",
+            child: const Icon(Icons.rocket_launch),
+          ),
+        ],
+      ),
     );
   }
+}
+
+class BallPhysicsPainter extends CustomPainter {
+  final double ballX;
+  final double ballY;
+  final double ballRadius;
+  final double centerX;
+  final double centerY;
+  final double containerRadius;
+
+  BallPhysicsPainter({
+    required this.ballX,
+    required this.ballY,
+    required this.ballRadius,
+    required this.centerX,
+    required this.centerY,
+    required this.containerRadius,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint();
+
+    // Dibujar el círculo contenedor
+    paint
+      ..color = Colors.white.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0;
+
+    canvas.drawCircle(Offset(centerX, centerY), containerRadius, paint);
+
+    // Dibujar sombra del círculo contenedor
+    paint
+      ..color = Colors.white.withOpacity(0.1)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(Offset(centerX, centerY), containerRadius, paint);
+
+    // Dibujar sombra de la pelota
+    paint
+      ..color = Colors.black.withOpacity(0.3)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(Offset(ballX + 2, ballY + 2), ballRadius, paint);
+
+    // Dibujar la pelota con gradiente
+    final ballGradient = RadialGradient(
+      center: const Alignment(-0.3, -0.3),
+      radius: 0.8,
+      colors: [
+        Colors.orange.shade300,
+        Colors.red.shade600,
+        Colors.red.shade800,
+      ],
+    );
+
+    paint
+      ..shader = ballGradient.createShader(
+        Rect.fromCircle(center: Offset(ballX, ballY), radius: ballRadius),
+      )
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(Offset(ballX, ballY), ballRadius, paint);
+
+    // Dibujar brillo en la pelota
+    paint
+      ..shader = null
+      ..color = Colors.white.withOpacity(0.4)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      Offset(ballX - ballRadius * 0.3, ballY - ballRadius * 0.3),
+      ballRadius * 0.3,
+      paint,
+    );
+
+    // Dibujar centro del círculo contenedor
+    paint
+      ..color = Colors.white.withOpacity(0.5)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(Offset(centerX, centerY), 3.0, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
