@@ -1,11 +1,11 @@
 ---
 mode: 'agent'
 model: GPT-4o
-tools: ['extensions', 'codebase', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'terminalSelection', 'terminalLastCommand', 'openSimpleBrowser', 'fetch', 'findTestFiles', 'searchResults', 'githubRepo', 'runTests', 'runCommands', 'runTasks', 'editFiles', 'runNotebooks', 'search', 'new', 'dart_format', 'get_widget_tree', 'pub']
+tools: ['extensions', 'codebase', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'terminalSelection', 'terminalLastCommand', 'openSimpleBrowser', 'fetch', 'findTestFiles', 'searchResults', 'githubRepo', 'runTests', 'runCommands', 'runTasks', 'editFiles', 'runNotebooks', 'search', 'new', 'analyze_files', 'connect_dart_tooling_daemon', 'create_project', 'dart_fix', 'dart_format', 'get_runtime_errors', 'get_widget_tree', 'pub', 'run_tests']
 description: 'Create a new component'
 ---
 
-Your goal is to create a component, ask the user for the component name, and then generate the necessary files and code structure for the new component.
+Your goal is to create a component, ask the user for the component name, and then generate the necessary files and code structure for the new component using the `general-coding.instructions.md`.
 
 The component should follow the following structure:
 
