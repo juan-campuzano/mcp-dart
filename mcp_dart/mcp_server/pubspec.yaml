@@ -1,0 +1,15 @@
+name: mcp_dart_server
+description: Model Context Protocol (MCP) server implementation in Dart
+version: 1.0.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # Usando solo bibliotecas core de Dart para simplicidad
+
+dev_dependencies:
+  test: ^1.21.0
+
+executables:
+  mcp_dart_server:
