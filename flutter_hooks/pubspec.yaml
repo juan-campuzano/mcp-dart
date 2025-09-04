@@ -1,4 +1,4 @@
-name: flutter_hooks
+name: flutter_hooks_example
 description: "A new Flutter project."
 publish_to: 'none'
 version: 0.1.0
@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_hooks: ^0.20.5
 
 dev_dependencies:
   flutter_test:
